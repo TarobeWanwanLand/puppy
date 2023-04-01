@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="allowReplaceRegexp" value="true" />
+    <option name="notice" value=" &amp;#36;file.fileName is part of the puppy project.&#10; Copyright (C) &amp;#36;today.year TarobeWanwanLand.&#10; &#10; Released under the MIT license.&#10; see http://opensource.org/licenses/MIT" />
+    <option name="myName" value="puppy" />
+  </copyright>
+</component>
