@@ -7,24 +7,24 @@ set(SOURCE_FILES
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SOURCE_FILES})
 
 # 実行ファイルを作成
-add_executable(puppy-tests)
+add_executable(Puppy-tests)
 
 # ソースファイルを追加
-target_sources(puppy-tests PRIVATE ${SOURCE_FILES})
+target_sources(Puppy-tests PRIVATE ${SOURCE_FILES})
 
 # ライブラリをリンク
 find_package(GTest REQUIRED)
-target_link_libraries(puppy-tests
+target_link_libraries(Puppy-tests
 	PRIVATE
-	puppy::puppy
+	Puppy::Puppy
 	GTest::gtest_main
 	)
 
 # インストール
-install(TARGETS puppy-tests
+install(TARGETS Puppy-tests
 	RUNTIME DESTINATION bin
 	)
 
 # テスト実行
 include(GoogleTest)
-gtest_discover_tests(puppy-tests)
+gtest_discover_tests(Puppy-tests)

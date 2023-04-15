@@ -8,22 +8,7 @@
  * Released under the MIT license. see http://opensource.org/licenses/MIT
  */
 
-#ifndef _PUPPY_TYPES_HPP
-#define _PUPPY_TYPES_HPP
-
-#include <cstddef>
-
-namespace puppy
+int main(int, char* [])
 {
-#ifdef PUPPY_USE_DOUBLE
-	using float_t = double;
-#else
-	using float_t = float;
-#endif
-
-	using size_t = std::size_t;
-	using ptrdiff_t = std::ptrdiff_t;
-	using nullptr_t = std::nullptr_t;
+	return 0;
 }
-
-#endif // _PUPPY_TYPES_HPP

@@ -6,6 +6,7 @@ cmake-install*/
 
 # CMake
 CMakeUserPresets.json
+/include/puppy/core/export.hpp
 
 # Conan
 conan/

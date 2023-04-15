@@ -1,17 +1,14 @@
 cmake_minimum_required(VERSION 3.14)
 
 # プロジェクト定義
-project(puppy
+project(Puppy
 	VERSION 0.0.1
-	LANGUAGES CXX C
-	)
+	LANGUAGES CXX C)
 
 # オプション定義
 option(BUILD_SHARED_LIBS "Build shared library" OFF)
-option(PUPPY_RTTI_ENABLED "Enable RTTI" OFF)
-option(PUPPY_PIC_ENABLED "Enable PIC" ON)
-option(PUPPY_BUILD_TESTS "Build puppy tests" OFF)
-option(PUPPY_BUILD_EXAMPLES "Build puppy examples" OFF)
+option(PUPPY_BUILD_TESTS "Build Puppy tests" OFF)
+option(PUPPY_BUILD_EXAMPLES "Build Puppy examples" OFF)
 
 # C++20に設定
 set(CMAKE_CXX_STANDARD 20)
@@ -23,62 +20,40 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
-# UTF-8を使用する
-add_compile_options(-fexec-charset=UTF-8)
-
 # Windowsで共有ライブラリをビルドするために、
 # CMAKE_WINDOWS_EXPORT_ALL_SYMBOLSをTRUEに設定
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-# PUPPY_PIC_ENABLEDの設定を適用
-set(CMAKE_POSITION_INDEPENDENT_CODE ${PUPPY_PIC_ENABLED})
-
-# PUPPY_RTTI_ENABLEDの設定を適用
-if (PUPPY_RTTI_ENABLED)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -frtti")
-endif ()
-
-# デバッグビルド時にDEBUGマクロを定義
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
-
 # デバッグビルド時のポストフィックスを設定
 set(CMAKE_DEBUG_POSTFIX d)
 
+# ライブラリ定義
+add_library(Puppy)
+add_library(Puppy::Puppy ALIAS Puppy)
+
+# デバッグビルド時にDEBUGマクロを定義
+target_compile_definitions(Puppy PUBLIC PUPPY_DEBUG=$<CONFIG:DEBUG>)
+
 # ヘッダファイル
 set(HEADER_FILES
-	include/puppy/core/detail/unicode_convert.hpp
-
-	include/puppy/core/assert.hpp
+	include/puppy/core/contracts.hpp
 	include/puppy/core/common.hpp
-	#include/puppy/core/export.hpp
-	include/puppy/core/log.hpp
 	include/puppy/core/platform.hpp
 	include/puppy/core/string.hpp
+	include/puppy/core/string_view.hpp
 	include/puppy/core/types.hpp
-	include/puppy/core/utility.hpp
 	)
-
-# ライブラリ定義
-add_library(puppy)
-add_library(puppy::puppy ALIAS puppy)
 
 # ソースファイル
 set(SOURCE_FILES
-	src/core/log.cpp
-	)
-
-# exportヘッダを生成
-include(GenerateExportHeader)
-generate_export_header(puppy
-	EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/include/puppy/core/export.hpp
+	src/core/string.cpp
 	)
 
 # ライブラリにソースを追加
-target_sources(puppy
+target_sources(Puppy
 	PRIVATE
-	${HEADER_FILES}
-	${SOURCE_FILES}
-	)
+		${HEADER_FILES}
+		${SOURCE_FILES})
 
 # ソースグループを定義
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${HEADER_FILES} ${SOURCE_FILES})
@@ -86,46 +61,56 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${HEADER_FILES} ${SOURCE_FIL
 # 外部ライブラリをリンク
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
-target_link_libraries(puppy
+target_link_libraries(Puppy
 	PRIVATE
 	fmt::fmt
-	spdlog::spdlog
-	)
+	spdlog::spdlog)
+
+# 生成ヘッダのディレクトリ
+set(GENERATED_HEADERS_DIR ${CMAKE_BINARY_DIR}/generated)
+
+# exportヘッダを生成
+include(GenerateExportHeader)
+generate_export_header(Puppy
+	EXPORT_FILE_NAME ${GENERATED_HEADERS_DIR}/core/export.hpp
+	INCLUDE_GUARD_NAME _PUPPY_EXPORT_HPP)
 
 # インクルードディレクトリを設定
-target_include_directories(puppy
+target_include_directories(Puppy
 	PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:include>
-	)
+	$<BUILD_INTERFACE:${GENERATED_HEADERS_DIR}>
+	$<INSTALL_INTERFACE:include>)
 
 set(CMAKE_STATIC_LIBRARY_PREFIX)
 
 # ライブラリをインストール
-install(TARGETS puppy
-	EXPORT puppy-config
+install(TARGETS Puppy
+	EXPORT PuppyConfig
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION bin
-	)
+	RUNTIME DESTINATION bin)
 
 # インクルードディレクトリをインストール
-install(DIRECTORY include DESTINATION include)
+install(DIRECTORY include/puppy DESTINATION include)
+
+# 生成したヘッダをすべてインストール
+file(GLOB_RECURSE GENERATED_FILES ${GENERATED_HEADERS_DIR}/*)
+install(FILES ${GENERATED_FILES} DESTINATION include/puppy)
 
 # コンフィグをインストール
-install(EXPORT puppy-config
-	FILE puppy-config.cmake
-	NAMESPACE puppy::
-	DESTINATION lib/cmake/puppy
-	)
+install(EXPORT PuppyConfig
+	FILE PuppyConfig.cmake
+	NAMESPACE Puppy::
+	DESTINATION lib/cmake/Puppy)
 
 # テストのビルド
-if (PUPPY_BUILD_TESTS)
+if(PUPPY_BUILD_TESTS)
 	enable_testing()
 	add_subdirectory(tests)
-endif ()
+endif()
 
 # サンプルのビルド
-if (PUPPY_BUILD_EXAMPLES)
+if(PUPPY_BUILD_EXAMPLES)
 	add_subdirectory(examples)
-endif ()
+endif()
