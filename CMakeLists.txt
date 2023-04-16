@@ -36,8 +36,8 @@ target_compile_definitions(Puppy PUBLIC PUPPY_DEBUG=$<CONFIG:DEBUG>)
 
 # ヘッダファイル
 set(HEADER_FILES
-	include/puppy/core/contracts.hpp
 	include/puppy/core/common.hpp
+	include/puppy/core/contracts.hpp
 	include/puppy/core/platform.hpp
 	include/puppy/core/string.hpp
 	include/puppy/core/string_view.hpp
@@ -67,19 +67,20 @@ target_link_libraries(Puppy
 	spdlog::spdlog)
 
 # 生成ヘッダのディレクトリ
-set(GENERATED_HEADERS_DIR ${CMAKE_BINARY_DIR}/generated)
+set(EXPORT_HEADERS_DIR ${CMAKE_BINARY_DIR}/exports)
+set(EXPORT_HEADER_FILE export.hpp)
 
 # exportヘッダを生成
 include(GenerateExportHeader)
 generate_export_header(Puppy
-	EXPORT_FILE_NAME ${GENERATED_HEADERS_DIR}/core/export.hpp
+	EXPORT_FILE_NAME "${EXPORT_HEADERS_DIR}/${EXPORT_HEADER_FILE}"
 	INCLUDE_GUARD_NAME _PUPPY_EXPORT_HPP)
 
 # インクルードディレクトリを設定
 target_include_directories(Puppy
 	PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<BUILD_INTERFACE:${GENERATED_HEADERS_DIR}>
+	$<BUILD_INTERFACE:${EXPORT_HEADERS_DIR}>
 	$<INSTALL_INTERFACE:include>)
 
 set(CMAKE_STATIC_LIBRARY_PREFIX)
@@ -95,8 +96,7 @@ install(TARGETS Puppy
 install(DIRECTORY include/puppy DESTINATION include)
 
 # 生成したヘッダをすべてインストール
-file(GLOB_RECURSE GENERATED_FILES ${GENERATED_HEADERS_DIR}/*)
-install(FILES ${GENERATED_FILES} DESTINATION include/puppy)
+install(FILES "${EXPORT_HEADERS_DIR}/${EXPORT_HEADER_FILE}" DESTINATION include/puppy/core)
 
 # コンフィグをインストール
 install(EXPORT PuppyConfig
