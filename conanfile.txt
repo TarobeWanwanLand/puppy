@@ -4,9 +4,6 @@ boost/1.81.0
 fmt/9.1.0
 spdlog/1.11.0
 
-[test_requires]
-gtest/cci.20210126
-
 [generators]
 CMakeDeps
 CMakeToolchain

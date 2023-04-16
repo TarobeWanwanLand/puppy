@@ -8,7 +8,12 @@
  * Released under the MIT license. see http://opensource.org/licenses/MIT
  */
 
+#include <puppy/core/string_view.hpp>
+
 int main(int, char* [])
 {
+	constexpr const char32_t* str = nullptr;
+	puppy::string_view sv(str, 2);
+
 	return 0;
 }
